@@ -1,0 +1,83 @@
+services:
+  postgres:
+    container_name: ms_pq_sql
+    image: postgres
+    environment:
+      POSTGRES_USER: khoido
+      POSTGRES_PASSWORD: khoido123
+      PGDATA: /var/lib/postgresql/data
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - microsevices-net
+    restart: unless-stopped
+
+  pgadmin: 
+    container_name: ms_pgadmin
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin@pgadmin.org}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    networks:
+      - microsevices-net
+    restart: unless-stopped
+
+  mongodb:
+    container_name: ms_mongo_db
+    image: mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo:/data
+    environment:
+      -  MONGO_INITDB_ROOT_USERNAME=khoido
+      -  MONGO_INITDB_ROOT_PASSWORD=khoido
+  
+  mongo-express:
+    container_name: ms_mongo_express
+    image: mongo-express
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=khoido
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=khoido
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+
+    ports:
+      - 8081:8081
+    restart: always
+
+  email-dev:
+    container_name: ms_mail_dev
+    image: maildev/maildev
+    ports:
+      - 1080:80
+      - 1025:25
+
+networks:
+  microsevices-net:
+    driver: bridge
+
+volumes:
+  postgres:
+  pgadmin:
+  mongo:
+
+
+# ///////////////////////
+
+#  docker compose up -d
+#  docker compose down
+
+# pdadmin init pass: khoizpro7
+
+# docker logs ms_mongo_express
+# docker network inspect microsevices-net
+# login mongo_express: admin-pass
+
